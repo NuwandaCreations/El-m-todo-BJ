@@ -100,41 +100,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/tv_tie"
-                style="@style/statistics_subtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/draws"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_tie_times"
-                style="@style/statistics_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_tie" />
-
-            <TextView
-                android:id="@+id/tv_tie_percent"
-                style="@style/statistics_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_tie_times" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
     </LinearLayout>
 
     <View
@@ -266,48 +231,13 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/tv_total_tie"
-                style="@style/statistics_subtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/draws"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_total_tie_times"
-                style="@style/statistics_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_total_tie" />
-
-            <TextView
-                android:id="@+id/tv_total_tie_percent"
-                style="@style/statistics_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_total_tie_times" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
     </LinearLayout>
 
     <View
         android:layout_width="300dp"
         android:layout_height="1dp"
         android:background="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/tv_balance_total"
+        app:layout_constraintBottom_toTopOf="@+id/general_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/general_statistics_layout" />

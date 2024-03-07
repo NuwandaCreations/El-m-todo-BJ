@@ -6,7 +6,6 @@ class Preferences(ctx: Context) {
     private val STATISTICS = "general_statistics"
     private val VICTORIES = "times_winned"
     private val DEFEATS = "times_losed"
-    private val DRAWS = "times_tied"
     private val BALANCE = "total_balance"
     private val TIME = "total_time"
 
@@ -18,10 +17,6 @@ class Preferences(ctx: Context) {
 
     fun saveDefeats(defeats: Int) {
         storage.edit().putInt(DEFEATS, defeats).apply()
-    }
-
-    fun saveDraws(draws: Int) {
-        storage.edit().putInt(DRAWS, draws).apply()
     }
 
     fun saveBalance(balance: Double) {
@@ -38,10 +33,6 @@ class Preferences(ctx: Context) {
 
     fun getDefeats(): Int {
         return storage.getInt(DEFEATS, 0)
-    }
-
-    fun getDraws(): Int {
-        return storage.getInt(DRAWS, 0)
     }
 
     fun getBalance(): String? {

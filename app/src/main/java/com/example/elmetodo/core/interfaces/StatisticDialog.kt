@@ -20,19 +20,15 @@ interface StatisticDialog {
         binding.apply {
             tvWinTimes.text = statistics.victories.toString()
             tvLoseTimes.text = statistics.defeats.toString()
-            tvTieTimes.text = statistics.draws.toString()
             val balanceText = "Balance: " + round(statistics.balance).toString()
             tvBalanceInGame.text = balanceText
 
-            val sum = statistics.victories + statistics.defeats + statistics.draws
-            if (statistics.victories != 0) tvWinPercent.text =
-                percentText(statistics.victories, sum)
-            if (statistics.defeats != 0) tvLosePercent.text = percentText(statistics.defeats, sum)
-            if (statistics.draws != 0) tvTiePercent.text = percentText(statistics.draws, sum)
+            val sum = statistics.victories + statistics.defeats
+            tvWinPercent.text = if (statistics.victories != 0) percentText(statistics.victories, sum) else "0%"
+            tvLosePercent.text = if (statistics.defeats != 0) percentText(statistics.defeats, sum) else "0%"
 
             tvTotalWinTimes.text = generalStatistics.victories.toString()
             tvTotalLoseTimes.text = generalStatistics.defeats.toString()
-            tvTotalTieTimes.text = generalStatistics.draws.toString()
             val balanceTotalText = "Total balance: " + round(generalStatistics.balance).toString()
             tvBalanceTotal.text = balanceTotalText
             val timeChrono = toHourMinuteSeconds(generalStatistics.time)
@@ -40,13 +36,11 @@ interface StatisticDialog {
             tvTimeTotal.text = timeTotalText
 
             val sumTotal =
-                generalStatistics.victories + generalStatistics.defeats + generalStatistics.draws
+                generalStatistics.victories + generalStatistics.defeats
             if (generalStatistics.victories != 0) tvTotalWinPercent.text =
                 percentText(generalStatistics.victories, sumTotal)
             if (generalStatistics.defeats != 0) tvTotalLosePercent.text =
                 percentText(generalStatistics.defeats, sumTotal)
-            if (generalStatistics.draws != 0) tvTotalTiePercent.text =
-                percentText(generalStatistics.draws, sumTotal)
         }
         val builder = AlertDialog.Builder(ctx)
         val dialog = builder.setView(binding.root).create()

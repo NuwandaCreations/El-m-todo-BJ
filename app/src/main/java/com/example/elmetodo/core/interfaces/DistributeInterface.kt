@@ -5,7 +5,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.elmetodo.databinding.DistributeLayoutBinding
 import java.math.RoundingMode
 
-interface DistributeInterface {
+interface  DistributeInterface {
 
     fun distributeSeries(
         serie1: MutableList<Double>,
@@ -13,12 +13,13 @@ interface DistributeInterface {
         serie3: MutableList<Double>,
         serie4: MutableList<Double>,
         serie5: MutableList<Double>,
+        serie6: MutableList<Double>,
         ctx: Context,
         binding: DistributeLayoutBinding
     ): AlertDialog {
         val moneyPerSerie =
-            (serie1.sum() + serie2.sum() + serie3.sum() + serie4.sum() + serie5.sum()) / 5
-        val betsPerSerie = (serie1.size + serie2.size + serie3.size + serie4.size + serie5.size) / 5
+            (serie1.sum() + serie2.sum() + serie3.sum() + serie4.sum() + serie5.sum() + serie6.sum()) / 6
+        val betsPerSerie = (serie1.size + serie2.size + serie3.size + serie4.size + serie5.size + serie6.size) / 6
         val newSerie = mutableListOf<Double>()
 
         when (betsPerSerie) {

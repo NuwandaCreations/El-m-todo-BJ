@@ -7,10 +7,9 @@ class GetStatisticsUseCase {
     operator fun invoke(): StatisticCount {
         val victories = preferences.getVictories()
         val defeats = preferences.getDefeats()
-        val draws = preferences.getDraws()
         val balance = preferences.getBalance()
         val time = preferences.getTime()
 
-        return StatisticCount(victories, defeats, draws, balance?.toDouble() ?: 0.0, time)
+        return StatisticCount(victories, defeats, balance?.toDouble() ?: 0.0, time)
     }
 }

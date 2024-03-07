@@ -7,7 +7,6 @@ class SaveStatisticsUseCase() {
     operator fun invoke(statistics: StatisticCount, generalStatistics: StatisticCount){
         preferences.saveVictories(generalStatistics.victories + statistics.victories)
         preferences.saveDefeats(generalStatistics.defeats + statistics.defeats)
-        preferences.saveDraws(generalStatistics.draws + statistics.draws)
         preferences.saveBalance(generalStatistics.balance + statistics.balance)
         preferences.saveTime(generalStatistics.time + statistics.time)
     }
