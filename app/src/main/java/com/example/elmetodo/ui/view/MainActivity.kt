@@ -2,10 +2,11 @@ package com.example.elmetodo.ui.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
+import androidx.core.view.isVisible
 import com.example.elmetodo.R
+import com.example.elmetodo.core.interfaces.BetsModifier
 import com.example.elmetodo.domain.model.StatisticCount
 import com.example.elmetodo.core.interfaces.StatisticDialog
 import com.example.elmetodo.databinding.ActivityMainBinding
@@ -13,14 +14,13 @@ import com.example.elmetodo.databinding.DistributeLayoutBinding
 import com.example.elmetodo.databinding.StatisticsLayoutBinding
 import com.example.elmetodo.core.interfaces.DistributeInterface
 import com.example.elmetodo.core.interfaces.SeriesModifier
-import com.example.elmetodo.domain.model.BetSerie
+import com.example.elmetodo.domain.Mathematics
 import com.example.elmetodo.ui.viewModel.ViewModel
 import kotlinx.coroutines.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.math.RoundingMode
-import kotlin.system.measureTimeMillis
 
-class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, SeriesModifier, ViewActions {
+class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, SeriesModifier,
+    BetsModifier {
     private val viewModel: ViewModel by viewModel()
     private lateinit var binding: ActivityMainBinding
     private lateinit var dialogBinding: StatisticsLayoutBinding
@@ -52,17 +52,79 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
 
     private fun initClickListeners() {
         binding.apply {
-            buttonListener(btnLose1, 1, false)
-            buttonListener(btnWin1, 1, true)
-
-            buttonListener(btnLose2, 2, false)
-            buttonListener(btnWin2, 2, true)
-
-            buttonListener(btnLose3, 3, false)
-            buttonListener(btnWin3, 3, true)
+            btnWin1.setOnClickListener {
+                serie1 = setWinSerie(serie1)
+                serie4 = setLoseSerie(serie4)
+                clickAction1()
+            }
+            btnLose1.setOnClickListener {
+                serie1 = setLoseSerie(serie1)
+                serie4 = setWinSerie(serie4)
+                clickAction1()
+            }
+            btnWin2.setOnClickListener {
+                serie2 = setWinSerie(serie2)
+                serie5 = setLoseSerie(serie5)
+                clickAction2()
+            }
+            btnLose2.setOnClickListener {
+                serie2 = setLoseSerie(serie2)
+                serie5 = setWinSerie(serie5)
+                clickAction2()
+            }
+            btnWin3.setOnClickListener {
+                serie3 = setWinSerie(serie3)
+                serie6 = setLoseSerie(serie6)
+                clickAction3()
+            }
+            btnLose3.setOnClickListener {
+                serie3 = setLoseSerie(serie3)
+                serie6 = setWinSerie(serie6)
+                clickAction3()
+            }
         }
     }
 
+    private fun clickAction1() {
+        val betSerie1 = calculateSerieBet(serie1)
+        val betSerie4 = calculateSerieBet(serie4)
+        if (betSerie4 > betSerie1) {
+            val serie = serie1
+            serie1 = serie4
+            serie4 = serie
+            showBet(binding, 1, betSerie4, betSerie1)
+        } else {
+            showBet(binding, 1, betSerie1, betSerie4)
+        }
+    }
+
+    private fun clickAction2() {
+        val betSerie2 = calculateSerieBet(serie2)
+        val betSerie5 = calculateSerieBet(serie5)
+        if (betSerie5 > betSerie2) {
+            val serie = serie2
+            serie2 = serie5
+            serie5 = serie
+            showBet(binding, 2, betSerie5, betSerie2)
+        } else {
+            showBet(binding, 2, betSerie2, betSerie5)
+        }
+    }
+
+    private fun clickAction3() {
+        val betSerie3 = calculateSerieBet(serie3)
+        val betSerie6 = calculateSerieBet(serie6)
+        if (betSerie6 > betSerie3) {
+            val serie = serie3
+            serie3 = serie6
+            serie6 = serie
+            showBet(binding, 3, betSerie6, betSerie3)
+        } else {
+            showBet(binding, 3, betSerie3, betSerie6)
+        }
+    }
+
+    //    TODO: Timer se pierde al girar pantalla
     private fun initTimer() {
         CoroutineScope(Dispatchers.IO).launch {
             Thread.sleep(1000)
@@ -75,82 +137,13 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                 }
             }
         }
-
     }
 
+    //    TODO: es neceserio ViewModel??
     private fun suscribe() {
         viewModel.generalStatistics.observe(this) {
             generalStatistics = it
         }
-        viewModel.serieRefreshed.observe(this) { betSerie ->
-            when (betSerie.position) {
-                1 -> serie1 = betSerie.serie
-                2 -> serie2 = betSerie.serie
-                3 -> serie3 = betSerie.serie
-                4 -> serie4 = betSerie.serie
-                5 -> serie5 = betSerie.serie
-                6 -> serie6 = betSerie.serie
-            }
-        }
-    }
-
-    private fun buttonListener(view: View, firstSeriePosition: Int, isWinBet: Boolean) {
-        view.setOnClickListener {
-            val mirrorSeries = selectSeries(firstSeriePosition)
-            val firstSerie = setBalance(mirrorSeries.first(), isWinBet)
-            viewModel.refreshSerie(BetSerie(firstSerie, firstSeriePosition))
-            showBet(firstSeriePosition, firstSerie)
-            val secondSerie = setBalance(mirrorSeries.last(), !isWinBet)
-            val secondSeriePosition = firstSeriePosition + 3
-            viewModel.refreshSerie(BetSerie(secondSerie, secondSeriePosition))
-            showBet(secondSeriePosition, secondSerie)
-            /* TODO */
-            // Meter la función showBet en el refreshSerie
-        }
-    }
-
-    private fun setBalance(
-        serie: MutableList<Double>,
-        isWinBet: Boolean
-    ): MutableList<Double> {
-        if (isWinBet) {
-            statistics.balance += calculateBet(serie).toDouble()
-        } else {
-            statistics.balance -= calculateBet(serie).toDouble()
-        }
-        return setSerie(serie, isWinBet)
-    }
-
-    private fun selectSeries(position: Int): List<MutableList<Double>> {
-        return when (position) {
-            1 -> listOf(serie1, serie4)
-            2 -> listOf(serie2, serie5)
-            3 -> listOf(serie3, serie6)
-            else -> listOf(mutableListOf(0.2), mutableListOf(0.2))
-        }
-    }
-
-    private fun showBet(position: Int, serie: MutableList<Double>) {
-        when (position) {
-            1 -> binding.tv1.text = calculateBet(serie)
-            2 -> binding.tv2.text = calculateBet(serie)
-            3 -> binding.tv3.text = calculateBet(serie)
-            4 -> binding.tv4.text = calculateBet(serie)
-            5 -> binding.tv5.text = calculateBet(serie)
-            6 -> binding.tv6.text = calculateBet(serie)
-        }
-    }
-
-    private fun round(number: Double): Double {
-        return number.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
-    }
-
-    private fun clearSeries() {
-        serie1 = mutableListOf()
-        serie2 = mutableListOf()
-        serie3 = mutableListOf()
-        serie4 = mutableListOf()
-        serie5 = mutableListOf()
     }
 
     fun distributeBets(view: View) {
@@ -169,27 +162,38 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
         distributeBinding.apply {
             btnClose.setOnClickListener { dialog.dismiss() }
             btnAccept.setOnClickListener {
-                val etSerie = distributeBinding.etSerie.text.toString()
-                val finalSerie = etSerie
-                    .substring(1, etSerie.length - 1)
-                    .split(", ")
-                    .map { it.toDouble() }
-                    .toMutableList()
+                val principalSerieDist =
+                    distributedSerieParser(distributeBinding.etSeriePrincipal.text.toString())
+                val secondarySerieDist =
+                    distributedSerieParser(distributeBinding.etSerieSecondary.text.toString())
+
                 clearSeries()
-                for (i in 0 until finalSerie.size) {
-                    serie1.add(finalSerie[i])
-                    serie2.add(finalSerie[i])
-                    serie3.add(finalSerie[i])
-                    serie4.add(finalSerie[i])
-                    serie5.add(finalSerie[i])
-                    serie6.add(finalSerie[i])
+                for (i in 0 until principalSerieDist.size) {
+                    serie1.add(principalSerieDist[i])
+                    serie2.add(principalSerieDist[i])
+                    serie3.add(principalSerieDist[i])
                 }
-                for (i in 1..5) {
-                    showBet(i, finalSerie)
+                for (i in 0 until secondarySerieDist.size) {
+                    serie4.add(secondarySerieDist[i])
+                    serie5.add(secondarySerieDist[i])
+                    serie6.add(secondarySerieDist[i])
                 }
+
+                clickAction1()
+                clickAction2()
+                clickAction3()
                 dialog.dismiss()
             }
         }
+    }
+
+    private fun clearSeries() {
+        serie1 = mutableListOf()
+        serie2 = mutableListOf()
+        serie3 = mutableListOf()
+        serie4 = mutableListOf()
+        serie5 = mutableListOf()
+        serie6 = mutableListOf()
     }
 
     fun showPopUp(view: View) {
@@ -198,6 +202,7 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
         popup.inflate(R.menu.statistics_menu)
         popup.setOnMenuItemClickListener {
             when (it.itemId) {
+//                TODO
                 R.id.statistics -> {
                     dialogBinding = StatisticsLayoutBinding.inflate(layoutInflater)
                     val dialog = createDialog(
@@ -232,57 +237,76 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                 R.id.show_series -> {
                     if (binding.tv1.text == serie1.toString()) {
                         binding.apply {
-                            tv1.text = calculateBet(serie1)
-                            tv2.text = calculateBet(serie2)
-                            tv3.text = calculateBet(serie3)
-                            tv4.text = calculateBet(serie4)
-                            tv5.text = calculateBet(serie5)
-                            tv6.text = calculateBet(serie6)
+                            tv1.text = Mathematics().round(
+                                calculateSerieBet(serie1) - calculateSerieBet(serie4)
+                            ).toString()
+                            tv2.text = Mathematics().round(
+                                calculateSerieBet(serie2) - calculateSerieBet(serie5)
+                            ).toString()
+                            tv3.text = Mathematics().round(
+                                calculateSerieBet(serie3) - calculateSerieBet(serie6)
+                            ).toString()
+                            tv4.isVisible = false
+                            tv5.isVisible = false
+                            tv6.isVisible = false
                         }
                     } else {
                         binding.apply {
                             tv1.text = serie1.toString()
                             tv2.text = serie2.toString()
                             tv3.text = serie3.toString()
-                            tv4.text = serie4.toString()
-                            tv5.text = serie5.toString()
-                            tv6.text = serie6.toString()
+                            tv4.apply {
+                                text = serie4.toString()
+                                isVisible = true
+                            }
+                            tv5.apply {
+                                text = serie5.toString()
+                                isVisible = true
+                            }
+                            tv6.apply {
+                                text = serie6.toString()
+                                isVisible = true
+                            }
                         }
                     }
                     true
                 }
-
                 else -> false
             }
         }
         popup.show()
     }
 
+//    TODO
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putStringArray(
-            "statistics",
-            arrayOf(
-                statistics.victories.toString(),
-                statistics.defeats.toString(),
-                statistics.balance.toString(),
-                statistics.time.toString()
-            )
-        )
-        for (i in 1..6) {
-            outState.putDoubleArray("serie$i", selectSeries(i).first().toDoubleArray())
-        }
+//        outState.putStringArray(
+//            "statistics",
+//            arrayOf(
+//                statistics.victories.toString(),
+//                statistics.defeats.toString(),
+//                statistics.balance.toString(),
+//                statistics.time.toString()
+//            )
+//        )
+
+        outState.putDoubleArray("serie1", serie1.toDoubleArray())
+        outState.putDoubleArray("serie2", serie2.toDoubleArray())
+        outState.putDoubleArray("serie3", serie3.toDoubleArray())
+        outState.putDoubleArray("serie4", serie4.toDoubleArray())
+        outState.putDoubleArray("serie5", serie5.toDoubleArray())
+        outState.putDoubleArray("serie6", serie6.toDoubleArray())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        val statisticsRecovered = savedInstanceState.getStringArray("statistics")
-        statistics = StatisticCount(
-            statisticsRecovered?.get(0)?.toInt() ?: 0,
-            statisticsRecovered?.get(1)?.toInt() ?: 0,
-            statisticsRecovered?.get(3)?.toDouble() ?: 0.0,
-            statisticsRecovered?.get(4)?.toLong() ?: 0
-        )
+//        val statisticsRecovered = savedInstanceState.getStringArray("statistics")
+//        statistics = StatisticCount(
+//            statisticsRecovered?.get(0)?.toInt() ?: 0,
+//            statisticsRecovered?.get(1)?.toInt() ?: 0,
+//            statisticsRecovered?.get(3)?.toDouble() ?: 0.0,
+//            statisticsRecovered?.get(4)?.toLong() ?: 0
+//        )
         for (i in 1..5) {
             val serieRecovered =
                 savedInstanceState.getDoubleArray("serie$i")?.toMutableList() ?: mutableListOf(0.2)
@@ -294,7 +318,9 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                 5 -> serie5 = serieRecovered
                 6 -> serie5 = serieRecovered
             }
-            showBet(i, serieRecovered)
+            clickAction1()
+            clickAction2()
+            clickAction3()
         }
     }
 }

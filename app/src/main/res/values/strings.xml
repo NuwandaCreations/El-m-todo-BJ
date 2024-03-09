@@ -20,4 +20,6 @@
     <string name="distribute_title">Build new series</string>
     <string name="accept">Accept</string>
     <string name="cancel">Cancel</string>
+    <string name="principal">Principal</string>
+    <string name="secondary">Secondary</string>
 </resources>

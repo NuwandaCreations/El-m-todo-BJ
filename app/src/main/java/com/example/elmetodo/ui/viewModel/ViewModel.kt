@@ -12,7 +12,6 @@ class ViewModel(
     val getStatisticsUseCase: GetStatisticsUseCase
 ) : ViewModel() {
     var generalStatistics = MutableLiveData<StatisticCount>()
-    var serieRefreshed = MutableLiveData<BetSerie>()
 
     fun saveStatistics(statistics: StatisticCount, generalStatistics: StatisticCount) {
         saveStatisticsUseCase(statistics, generalStatistics)
@@ -21,9 +20,5 @@ class ViewModel(
     fun getStatistics() {
         val statistics = getStatisticsUseCase()
         generalStatistics.postValue(statistics)
-    }
-
-    fun refreshSerie(serie: BetSerie) {
-        serieRefreshed.postValue(serie)
     }
 }
