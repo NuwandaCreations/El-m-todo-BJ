@@ -6,4 +6,8 @@ class Mathematics {
     fun round(number: Double): Double {
         return number.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toDouble()
     }
+
+    fun percentText(number: Int, sum: Int): String {
+        return ((number * 100) / sum).toString() + "%"
+    }
 }

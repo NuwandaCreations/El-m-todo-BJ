@@ -15,8 +15,6 @@ interface SeriesModifier {
         } else {
             newSerie = mutableListOf(0.2)
         }
-//        TODO
-//            statistics.victories += 1
         return newSerie
     }
 
@@ -34,8 +32,6 @@ interface SeriesModifier {
                 newSerie = mutableListOf(0.2)
             }
         }
-//        TODO
-//            statistics.defeats += 1
         return newSerie
     }
 }

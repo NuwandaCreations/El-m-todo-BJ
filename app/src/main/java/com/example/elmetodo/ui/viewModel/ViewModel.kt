@@ -2,7 +2,6 @@ package com.example.elmetodo.ui.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.elmetodo.domain.model.BetSerie
 import com.example.elmetodo.domain.model.StatisticCount
 import com.example.elmetodo.domain.useCases.GetStatisticsUseCase
 import com.example.elmetodo.domain.useCases.SaveStatisticsUseCase

@@ -8,7 +8,7 @@ import androidx.core.view.isVisible
 import com.example.elmetodo.R
 import com.example.elmetodo.core.interfaces.BetsModifier
 import com.example.elmetodo.domain.model.StatisticCount
-import com.example.elmetodo.core.interfaces.StatisticDialog
+import com.example.elmetodo.core.interfaces.StatisticsInterface
 import com.example.elmetodo.databinding.ActivityMainBinding
 import com.example.elmetodo.databinding.DistributeLayoutBinding
 import com.example.elmetodo.databinding.StatisticsLayoutBinding
@@ -19,7 +19,7 @@ import com.example.elmetodo.ui.viewModel.ViewModel
 import kotlinx.coroutines.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, SeriesModifier,
+class MainActivity : AppCompatActivity(), StatisticsInterface, DistributeInterface, SeriesModifier,
     BetsModifier {
     private val viewModel: ViewModel by viewModel()
     private lateinit var binding: ActivityMainBinding
@@ -45,44 +45,79 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
     }
 
     private fun initUI() {
+        binding.tv4.isVisible = false
+        binding.tv5.isVisible = false
+        binding.tv6.isVisible = false
         initClickListeners()
-        initTimer()
         suscribe()
     }
 
     private fun initClickListeners() {
         binding.apply {
+            tv2.setOnClickListener {
+                if (tv2.text == getString(R.string.start)) {
+                    serie1 = setLoseSerie(serie1)
+                    serie2 = setLoseSerie(serie2)
+                    serie3 = setLoseSerie(serie3)
+                    clickActions()
+                    initTimer()
+                }
+            }
             btnWin1.setOnClickListener {
+                uploadStatistics(true, binding.tv1.text.toString().toDoubleOrNull() ?: 0.0)
                 serie1 = setWinSerie(serie1)
                 serie4 = setLoseSerie(serie4)
                 clickAction1()
             }
             btnLose1.setOnClickListener {
+                uploadStatistics(false, binding.tv1.text.toString().toDoubleOrNull() ?: 0.0)
                 serie1 = setLoseSerie(serie1)
                 serie4 = setWinSerie(serie4)
                 clickAction1()
             }
             btnWin2.setOnClickListener {
+                uploadStatistics(true, binding.tv2.text.toString().toDoubleOrNull() ?: 0.0)
                 serie2 = setWinSerie(serie2)
                 serie5 = setLoseSerie(serie5)
                 clickAction2()
             }
             btnLose2.setOnClickListener {
+                uploadStatistics(false, binding.tv2.text.toString().toDoubleOrNull() ?: 0.0)
                 serie2 = setLoseSerie(serie2)
                 serie5 = setWinSerie(serie5)
                 clickAction2()
             }
             btnWin3.setOnClickListener {
+                uploadStatistics(true, binding.tv3.text.toString().toDoubleOrNull() ?: 0.0)
                 serie3 = setWinSerie(serie3)
                 serie6 = setLoseSerie(serie6)
                 clickAction3()
             }
             btnLose3.setOnClickListener {
+                uploadStatistics(false, binding.tv3.text.toString().toDoubleOrNull() ?: 0.0)
                 serie3 = setLoseSerie(serie3)
                 serie6 = setWinSerie(serie6)
                 clickAction3()
             }
         }
+    }
+
+    private fun uploadStatistics(isVictory: Boolean, betSize: Double) {
+        statistics.apply {
+            if (isVictory) {
+                victories += 1
+                balance += betSize
+            } else {
+                defeats += 1
+                balance -= betSize
+            }
+        }
+    }
+
+    private fun clickActions() {
+        clickAction1()
+        clickAction2()
+        clickAction3()
     }
 
     private fun clickAction1() {
@@ -124,7 +159,6 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
         }
     }
 
-    //    TODO: Timer se pierde al girar pantalla
     private fun initTimer() {
         CoroutineScope(Dispatchers.IO).launch {
             Thread.sleep(1000)
@@ -139,7 +173,6 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
         }
     }
 
-    //    TODO: es neceserio ViewModel??
     private fun suscribe() {
         viewModel.generalStatistics.observe(this) {
             generalStatistics = it
@@ -179,9 +212,7 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                     serie6.add(secondarySerieDist[i])
                 }
 
-                clickAction1()
-                clickAction2()
-                clickAction3()
+                clickActions()
                 dialog.dismiss()
             }
         }
@@ -202,10 +233,9 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
         popup.inflate(R.menu.statistics_menu)
         popup.setOnMenuItemClickListener {
             when (it.itemId) {
-//                TODO
                 R.id.statistics -> {
                     dialogBinding = StatisticsLayoutBinding.inflate(layoutInflater)
-                    val dialog = createDialog(
+                    val dialog = statisticsDialog(
                         this,
                         dialogBinding,
                         statistics,
@@ -271,24 +301,24 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                     }
                     true
                 }
+
                 else -> false
             }
         }
         popup.show()
     }
 
-//    TODO
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-//        outState.putStringArray(
-//            "statistics",
-//            arrayOf(
-//                statistics.victories.toString(),
-//                statistics.defeats.toString(),
-//                statistics.balance.toString(),
-//                statistics.time.toString()
-//            )
-//        )
+        outState.putStringArray(
+            "statistics",
+            arrayOf(
+                statistics.victories.toString(),
+                statistics.defeats.toString(),
+                statistics.balance.toString(),
+                statistics.time.toString()
+            )
+        )
 
         outState.putDoubleArray("serie1", serie1.toDoubleArray())
         outState.putDoubleArray("serie2", serie2.toDoubleArray())
@@ -300,13 +330,13 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-//        val statisticsRecovered = savedInstanceState.getStringArray("statistics")
-//        statistics = StatisticCount(
-//            statisticsRecovered?.get(0)?.toInt() ?: 0,
-//            statisticsRecovered?.get(1)?.toInt() ?: 0,
-//            statisticsRecovered?.get(3)?.toDouble() ?: 0.0,
-//            statisticsRecovered?.get(4)?.toLong() ?: 0
-//        )
+        val statisticsRecovered = savedInstanceState.getStringArray("statistics")
+        statistics = StatisticCount(
+            statisticsRecovered?.get(0)?.toInt() ?: 0,
+            statisticsRecovered?.get(1)?.toInt() ?: 0,
+            statisticsRecovered?.get(2)?.toDouble() ?: 0.0,
+            statisticsRecovered?.get(3)?.toLong() ?: 0
+        )
         for (i in 1..5) {
             val serieRecovered =
                 savedInstanceState.getDoubleArray("serie$i")?.toMutableList() ?: mutableListOf(0.2)
@@ -318,9 +348,8 @@ class MainActivity : AppCompatActivity(), StatisticDialog, DistributeInterface, 
                 5 -> serie5 = serieRecovered
                 6 -> serie5 = serieRecovered
             }
-            clickAction1()
-            clickAction2()
-            clickAction3()
         }
+        clickActions()
+        initTimer()
     }
 }

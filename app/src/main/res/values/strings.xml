@@ -5,6 +5,7 @@
     <string name="defeats">Defeats</string>
     <string name="draws">Draws</string>
 
+    <string name="start">START</string>
     <string name="win">Win</string>
     <string name="lose">Lose</string>
     <string name="tie">Draw</string>
