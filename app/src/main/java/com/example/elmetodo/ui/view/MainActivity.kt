@@ -18,6 +18,7 @@ import com.example.elmetodo.domain.Mathematics
 import com.example.elmetodo.ui.viewModel.ViewModel
 import kotlinx.coroutines.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.Random
 
 class MainActivity : AppCompatActivity(), StatisticsInterface, DistributeInterface, SeriesModifier,
     BetsModifier {
@@ -45,24 +46,53 @@ class MainActivity : AppCompatActivity(), StatisticsInterface, DistributeInterfa
     }
 
     private fun initUI() {
-        binding.tv4.isVisible = false
-        binding.tv5.isVisible = false
-        binding.tv6.isVisible = false
         initClickListeners()
         suscribe()
+        randomColors()
+
+        serie1 = setLoseSerie(serie1)
+        serie2 = setLoseSerie(serie2)
+        serie3 = setLoseSerie(serie3)
+        clickActions()
+        initTimer()
+    }
+
+    private fun randomColors() {
+        val l = Random()
+        val color = when (l.nextInt(2)) {
+            0 -> { "ROJO" }
+            1 -> { "NEGRO" }
+            else -> {""}
+        }
+        val evenOdd = when (l.nextInt(2)) {
+            0 -> { "PAR" }
+            1 -> { "IMPAR" }
+            else -> {""}
+        }
+        val minorMayor = when (l.nextInt(2)) {
+            0 -> { "MENOR" }
+            1 -> { "MAYOR" }
+            else -> {""}
+        }
+        var betColors = listOf(color.toString(), evenOdd.toString(), minorMayor.toString())
+        betColors = betColors.shuffled()
+        binding.tv4.text = betColors[0]
+        binding.tv5.text = betColors[1]
+        binding.tv6.text = betColors[2]
     }
 
     private fun initClickListeners() {
         binding.apply {
-            tv2.setOnClickListener {
-                if (tv2.text == getString(R.string.start)) {
-                    serie1 = setLoseSerie(serie1)
-                    serie2 = setLoseSerie(serie2)
-                    serie3 = setLoseSerie(serie3)
-                    clickActions()
-                    initTimer()
-                }
+            tv4.setOnClickListener {
+                randomColors()
             }
+            tv5.setOnClickListener {
+                randomColors()
+            }
+            tv6.setOnClickListener {
+                randomColors()
+            }
+
             btnWin1.setOnClickListener {
                 uploadStatistics(true, binding.tv1.text.toString().toDoubleOrNull() ?: 0.0)
                 serie1 = setWinSerie(serie1)
@@ -276,9 +306,7 @@ class MainActivity : AppCompatActivity(), StatisticsInterface, DistributeInterfa
                             tv3.text = Mathematics().round(
                                 calculateSerieBet(serie3) - calculateSerieBet(serie6)
                             ).toString()
-                            tv4.isVisible = false
-                            tv5.isVisible = false
-                            tv6.isVisible = false
+                            randomColors()
                         }
                     } else {
                         binding.apply {
